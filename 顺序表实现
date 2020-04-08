@@ -1,0 +1,142 @@
+#include <iostream>
+using namespace std;
+template <class T>
+class List
+{
+	void clear();
+	
+
+	
+};
+template <class T>
+class arrList :public List<T>
+{
+private:
+	T* aList;//储存线性表的实例
+	int maxSize;//顺序表实例的最大长度
+	int curLen;//顺序表实例的当前长度
+	//int position;//当前处理位置
+public:
+	arrList(const int size) {
+		maxSize = size;
+		aList = new T[maxSize] ;
+		
+		curLen = 0;
+	}
+	~arrList() {
+		delete[] aList;
+	}
+	void clear() {//将顺序表存储的内容清除，成为空表
+		delete[]aList;
+		curLen =  0;
+		aList = new T[maxSize];
+	}
+	bool insert(const T value) {//在最后一个位置插入值
+		if (curLen >= maxSize) {
+			cout << "The list is overflow" << endl;
+			return false;
+		}
+		aList[curLen] = value;
+		curLen++;
+		return true;
+	}
+	bool insert(const T value, const int p)//在第p个位置插入值
+	{
+		int i;
+		if (curLen >= maxSize) {
+			cout << "The list is overflow" << endl;
+			return false;
+		}
+		if (p<0 || p>curLen) {
+			cout << "Insertion point is illegal" << endl;
+			return false;
+		}
+		for (i = curLen;i > p;i--) {
+			aList[i] = aList[i - 1];
+			aList[p] = value;
+			curLen++;
+			return true;
+		}
+
+	}
+	T change(const T value, const int p) {//将p处的值改成value
+	
+		if (p<0 || p>curLen) {
+			cout << "Insertion point is illegal" << endl;
+			return false;
+		}
+		T ret = aList[p];
+		aList[p] = value;
+		return ret;
+	}
+	
+	int  getmaxSize()
+	{
+		return maxSize;
+	}
+	int  getcurLen()
+	{
+		return curLen;
+	}
+	T*  getAList() {
+		return aList;
+	}
+	void readAList() {
+		for (int i = 0;i < maxSize;i++)
+			cout << aList[i] << " ";
+	} 
+	
+
+};
+bool arrList_Josephus(const int n,const int s,const int m)//要求s<n,n>0,m>0
+{
+	if (s < n && n>0 && m > 0) {
+		int i;
+		int time = m;
+		int point = s - 1;//报s的人的下标
+		arrList<int> list(n);
+		arrList<int> list1(n);//返回的线性表
+		for (i = 0;i < n;i++)//初始化
+		{
+			list.insert(i + 1);
+		}
+		/*list.change(10, 2);
+		list.readAList();*/
+		/*list1.insert(list.getAList()[point]);
+		list.change(0, point);*/
+		for (i = 0;i < n;i++)
+		{
+			time = 0;
+			while (time < m) {
+				if (list.getAList()[point] > 0) {
+					time++;
+
+				}
+				if (point >= n - 1) point = 0;
+				else point++;
+
+			}
+			list1.insert(list.getAList()[((point - 1) % n + n) % n]);
+			list.change(0, ((point - 1) % n + n) % n);
+
+		}
+		printf("数组储存排列后的结果\n");
+		list1.readAList();
+		printf("\n");
+	}
+	else {
+		cout << "输入错误" << endl;
+		return false;
+	}
+}
+int main()
+{
+
+	
+	int n, s, m;
+	cout<<"输入人数，从第几个人开始和数到几的人出列"<<endl;
+	cin >> n >> s >> m;
+	arrList_Josephus(n,s,m);
+	
+	
+}
