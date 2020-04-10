@@ -88,11 +88,11 @@ public:
 	
 
 };
-bool arrList_Josephus(const int n,const int s,const int m)//要求s<n,n>0,m>0
+void arrList_Josephus(const int n,const int s,const int m)//要求s<n,n>0,m>0
 {
-	if (s < n && n>0 && m > 0) {
+	
 		int i;
-		int time = m;
+		int time ;
 		int point = s - 1;//报s的人的下标
 		arrList<int> list(n);
 		arrList<int> list1(n);//返回的线性表
@@ -100,10 +100,7 @@ bool arrList_Josephus(const int n,const int s,const int m)//要求s<n,n>0,m>0
 		{
 			list.insert(i + 1);
 		}
-		/*list.change(10, 2);
-		list.readAList();*/
-		/*list1.insert(list.getAList()[point]);
-		list.change(0, point);*/
+		
 		for (i = 0;i < n;i++)
 		{
 			time = 0;
@@ -112,7 +109,7 @@ bool arrList_Josephus(const int n,const int s,const int m)//要求s<n,n>0,m>0
 					time++;
 
 				}
-				if (point >= n - 1) point = 0;
+				if (point >= n - 1) point = 0;//point指针永远指向报数的人的下一个人。（为了和初态保持一致，一开始point指向的是开始报数的第一个人，结束之后point仍然指向开始报数的第一个人）
 				else point++;
 
 			}
@@ -123,20 +120,166 @@ bool arrList_Josephus(const int n,const int s,const int m)//要求s<n,n>0,m>0
 		printf("数组储存排列后的结果\n");
 		list1.readAList();
 		printf("\n");
-	}
-	else {
-		cout << "输入错误" << endl;
-		return false;
-	}
+		
+	
 }
+//循环链表存
+template<class T> class Link {
+public:
+	T data;
+	Link<T>* next;
+	Link() {
+		data = 0;
+		next = NULL;
+	}
+	Link(const T info, const Link<T>* nextValue = NULL) {
+		data = info;
+		next = nextValue;
+	}
+	/*Link(const Link<T>* nextValue) {
+		next = nextValue;
+	}*/
+	
+};
+template <class T>class curLinkList :public List<T> {//带头结点的循环链表
+private:
+	Link<T> * tail;
+	
+public:
+	curLinkList()
+	{
+		
+		tail =  new Link<T>;
+		
+		tail->next = tail;
+		
+		
+
+
+	}
+	~curLinkList() {
+		Link<T> *tmp,*head;
+		head = tail->next;
+
+
+		tail->next = NULL;
+		while (head != NULL) {
+			
+			tmp = head;
+			head = head->next;
+			delete tmp;
+		}
+	}
+	void insert(T a) {//往后插入一个节点
+		Link<T> * tmp = new Link<T>;
+		tmp->data = a;
+		tmp->next = tail->next;
+		tail->next = tmp;
+		tail = tmp;
+
+	}
+	int countList() {
+		Link<T> * tmp =tail;
+		if (tmp->next == tail) return 0;//单独判断空表
+		tmp = tail->next->next;
+		int count = 1;//第一个节点；
+		
+		while (tmp != tail)
+		{
+			count++;
+			tmp = tmp->next;
+		}
+		return count;
+	}
+	int printLinklist() {//从头打印链表
+		if (tail == tail->next) {
+			
+			return 0;
+		}
+		else {
+			Link<T> *tmp = tail->next;
+			while (tmp!=tail) {
+				cout << tmp->next->data<<" " ;
+				tmp = tmp->next;
+
+
+			}
+		}
+		cout << endl;
+		return 1;
+	}
+	Link<T>* gettail()
+	{
+		return tail;
+	}
+	Link<T>* setPos(int i) {
+		
+		if (i == -1)
+			return tail->next;
+		int count=0;
+		Link<T>* p = new Link<T>;//若i=0则定位第一个节点
+		p = tail->next->next;
+		while (p != NULL && count < i) {
+			p = p->next;
+			count++;
+		}
+		return p;
+
+
+	}
+
+
+};
+
+void curLinkList_Josephus(const int n, const int s, const int m) {
+	curLinkList<int> aa;
+	int i;
+	cout << "循环链表储存后排序的结果" << endl;
+	
+	for ( i = 1;i <= n;i++) {
+		aa.insert(i);
+	}
+	int time;
+	int point = s - 1;
+	for (i = 0;i < n;i++) {
+		time = 0;
+		
+		
+		while (time < m) {
+			
+			if (aa.setPos(point)->data != 0) {
+				time++;
+			}
+			if (point >= n - 1) point = 0;//point指针永远指向报数的人的下一个人。（为了和初态保持一致，一开始point指向的是开始报数的第一个人，结束之后point仍然指向开始报数的第一个人）
+			else point++;
+
+		}
+		cout << aa.setPos(((point - 1) % n + n) % n)->data<<" ";
+		aa.setPos(((point - 1) % n + n) % n)->data = 0;
+
+
+
+	}
+	
+}
+
+//主函数
 int main()
 {
 
 	
 	int n, s, m;
-	cout<<"输入人数，从第几个人开始和数到几的人出列"<<endl;
+	cout << "输入人数，从第几个人开始和数到几的人出列" << endl;
+
 	cin >> n >> s >> m;
+	while (!(s < n && n>0 && m > 0)) {
+		cout << "输入错误，请重新输入：" << endl;
+		cout << "输入人数，从第几个人开始和数到几的人出列" << endl;
+		cin >> n >> s >> m;
+	 }
 	arrList_Josephus(n,s,m);
 	
+	curLinkList_Josephus(n, s, m);
 	
+	return 0;
 }
